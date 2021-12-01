@@ -1,0 +1,12 @@
+{
+  "name": "adventofcode2021",
+  "version": "1.0.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kjuib/AdventOfCode2021.git"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
