@@ -1,8 +1,8 @@
 import * as util from '../util.js';
 import _ from 'lodash';
 
-// const input = 'input.test.txt';
-const input = 'input.txt';
+const input = 'input.test.txt';
+// const input = 'input.txt';
 
 function checkPoint(x, y, points) {
     const current = _.get(points, `[${y}][${x}]`, 99) ;
@@ -19,11 +19,7 @@ function checkPoint(x, y, points) {
 }
 
 function main() {
-    const inputLines = util.loadInput(input);
-
-    const points = _.map(inputLines, (line) => {
-        return _.split(line, '').map(_.parseInt);
-    });
+    const points = util.loadInput(input, { split: true, isIntegers: true });
 
     const lowPoints = [];
     for (let y = 0; y < points.length; y++) {

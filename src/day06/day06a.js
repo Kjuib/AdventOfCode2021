@@ -21,11 +21,8 @@ function day(fishList) {
 }
 
 function main() {
-    const inputLines = util.loadInput(input);
-
-    let fish = _.map(_.split(inputLines[0], ','), (str) => {
-        return _.parseInt(str);
-    });
+    const inputLines = util.loadInput(input, { split: ',', isIntegers: true });
+    let fish = inputLines[0];
 
     console.log('fish', fish);
 

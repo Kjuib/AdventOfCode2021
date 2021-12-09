@@ -65,11 +65,7 @@ function getBasinSize(x, y, points, history) {
 }
 
 function main() {
-    const inputLines = util.loadInput(input);
-
-    const points = _.map(inputLines, (line) => {
-        return _.split(line, '').map(_.parseInt);
-    });
+    const points = util.loadInput(input, { split: true, isIntegers: true });
 
     const lowPoints = getLowPoints(points);
 

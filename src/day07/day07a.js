@@ -1,13 +1,13 @@
 import * as util from '../util.js';
 import _ from 'lodash';
 
-// const input = 'input.test.txt';
-const input = 'input.txt';
+const input = 'input.test.txt';
+// const input = 'input.txt';
 
 
 function main() {
-    const inputLines = util.loadInput(input);
-    const crabs = _.map(inputLines[0].split(','), _.parseInt);
+    const inputLines = util.loadInput(input, { split: ',', isIntegers: true });
+    const crabs = inputLines[0];
 
     const min = _.min(crabs);
     const max = _.max(crabs);

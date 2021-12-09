@@ -21,9 +21,8 @@ function day(fishMap) {
 }
 
 function main() {
-    const inputLines = util.loadInput(input);
-
-    let fish = _.countBy(_.split(inputLines[0], ','));
+    const inputLines = util.loadInput(input, { split: ',', isIntegers: true });
+    let fish = inputLines[0];
 
     for (let i = 1; i <= 256; i++) {
         fish = day(fish);
