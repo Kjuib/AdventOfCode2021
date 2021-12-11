@@ -20,3 +20,13 @@ export function loadInput(filePath, options = {}) {
         return filteredInput;
     }
 }
+
+export function printGrid(data, separator = ' ') {
+    const str = _.reduce(data, (acc, row) => {
+        return acc + _.reduce(row, (acc, char) => {
+            return acc + char + separator;
+        }, '') + '\n';
+    }, '');
+
+    console.log(str, '\n');
+}
