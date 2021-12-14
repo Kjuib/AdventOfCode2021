@@ -1,60 +1,52 @@
 import * as util from '../util.js';
 import _ from 'lodash';
 
-const input = 'input.test.txt';
-// const input = 'input.txt';
+// const input = 'input.test.txt';
+const input = 'input.txt';
 
 function step(currentCode, map) {
-    const nextCode = [];
+    const nextCode = {};
 
-    let prevChar = '';
-    _.forEach(currentCode, (char01) => {
-        if (prevChar) {
-            const middle = map[`${prevChar}${char01}`];
-            if (middle) {
-                nextCode.push(middle);
-            }
-        }
-
-        nextCode.push(char01)
-        prevChar = char01;
+    _.forEach(currentCode, (value, key) => {
+        const newPair = map[key];
+        nextCode[newPair[0]] = (nextCode[newPair[0]] || 0) + value;
+        nextCode[newPair[1]] = (nextCode[newPair[1]] || 0) + value;
     });
 
     return nextCode;
 }
 
 function main() {
+    console.time();
     const [ strStart, ...inputLines] = util.loadInput(input);
 
     const map = _.reduce(inputLines, (acc, line) => {
         const [ from, add ] = line.split(' -> ');
-        acc[from] = add;
+        acc[from] = [ `${from[0]}${add}`, `${add}${from[1]}` ];
         return acc;
     }, {});
 
-    let code = strStart.split('');
-
-    let prevCounts = {}
-    for (let i = 1; i <= 20; i++) {
-        code = step(code, map);
-        const counts = _.countBy(code);
-
-        // console.log('N', counts.N, counts.N - (prevCounts.N || 0));
-        // prevCounts = counts;
-        // console.log('counts', counts);
-        console.log(code.length, counts);
+    let code = {};
+    for (let i = 0; i < strStart.length - 1; i++) {
+        const key = `${strStart[i]}${strStart[i + 1]}`;
+        code[key] = (code[key] || 0) + 1;
     }
 
-    const counts = _.countBy(code);
-
-    console.log('score', _.max(_.values(counts)) - _.min(_.values(counts)));
-
-    let itemCount = strStart.length;
-    console.log('itemCount', itemCount);
     for (let i = 1; i <= 40; i++) {
-        itemCount = itemCount + itemCount - 1;
-        console.log('itemCount', itemCount);
+        code = step(code, map);
     }
+
+    const counts = {};
+    _.forEach(code, (value, key) => {
+        counts[key[0]] = (counts[key[0]] || 0) + (value / 2);
+        counts[key[1]] = (counts[key[1]] || 0) + (value / 2);
+    });
+
+    const max = _.ceil(_.max(_.values(counts)));
+    const min = _.ceil(_.min(_.values(counts)));
+
+    console.log('score', max - min);
+    console.timeEnd();
 }
 
 main();
