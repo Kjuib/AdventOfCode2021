@@ -34,13 +34,27 @@ function main() {
 
     let code = strStart.split('');
 
-    for (let i = 1; i <= 40; i++) {
+    let prevCounts = {}
+    for (let i = 1; i <= 20; i++) {
         code = step(code, map);
+        const counts = _.countBy(code);
+
+        // console.log('N', counts.N, counts.N - (prevCounts.N || 0));
+        // prevCounts = counts;
+        // console.log('counts', counts);
+        console.log(code.length, counts);
     }
 
     const counts = _.countBy(code);
 
     console.log('score', _.max(_.values(counts)) - _.min(_.values(counts)));
+
+    let itemCount = strStart.length;
+    console.log('itemCount', itemCount);
+    for (let i = 1; i <= 40; i++) {
+        itemCount = itemCount + itemCount - 1;
+        console.log('itemCount', itemCount);
+    }
 }
 
 main();
