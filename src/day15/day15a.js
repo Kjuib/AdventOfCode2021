@@ -7,41 +7,21 @@ const input = 'input.txt';
 let lowest = new Map();
 lowest.set('score', 9999999)
 
-function step(current, nodes, history) {
-    if (!current || history.get(current.key)) {
+function updateNode(current, xMod, yMod, nodes) {
+    const nextNode = nodes.get(`${current.x + xMod},${current.y + yMod}`);
+    if (!nextNode) {
         return;
     }
-
-    const newHistory = new Map(history);
-    newHistory.set(current.key, true);
-    newHistory.set('score', history.get('score') + current.value);
-
-    if (current.lowest > newHistory.get('score')) {
-        current.lowest = newHistory.get('score');
-    } else {
-        // we got here faster before
-        return;
+    const currentValue = nextNode.value + current.lowest;
+    if (currentValue < nextNode.lowest) {
+        nextNode.lowest = currentValue;
     }
-
-    // if (newHistory.get('score') > lowest.get('score')) {
-    // shortcut (saved progress)
-    if (newHistory.get('score') > lowest.get('score') || newHistory.get('score') > 891) {
-        return;
-    } else if (current.isTarget) {
-        lowest = newHistory;
-        console.log('FOUND', lowest.get('score'));
-        return;
-    }
-
-    step(nodes.get(`${current.x},${current.y - 1}`), nodes, newHistory);
-    step(nodes.get(`${current.x + 1},${current.y}`), nodes, newHistory);
-    step(nodes.get(`${current.x},${current.y + 1}`), nodes, newHistory);
-    step(nodes.get(`${current.x - 1},${current.y}`), nodes, newHistory);
 }
 
 function main() {
     console.time();
     const grid = util.loadInput(input, { split: '', isIntegers: true });
+    const size = grid.length;
     const nodes = new Map;
     for (let y = 0; y < grid.length; y++) {
         for (let x = 0; x < grid[0].length; x++) {
@@ -50,18 +30,28 @@ function main() {
                 key: key,
                 x: x,
                 y: y,
-                value: ((y === 0) && (x === 0)) ? 0 : grid[y][x],
+                value: grid[y][x],
                 lowest: 9999999,
                 isTarget: ((y === grid.length - 1) && (x === grid[0].length - 1))
             });
         }
     }
+    const first = nodes.get('0,0');
+    first.value = 0;
+    first.lowest = 0;
+    const last = nodes.get(`${size - 1},${size - 1}`);
+    last.isTarget = true;
 
-    const history = new Map();
-    history.set('score', 0);
-    step(nodes.get('0,0'), nodes, history);
+    for (let i = 0; i < 10; i++) {
+        nodes.forEach( (node) => {
+            updateNode(node,  0, -1, nodes);
+            updateNode(node,  1,  0, nodes);
+            updateNode(node,  0,  1, nodes);
+            updateNode(node, -1,  0, nodes);
+        });
+        console.log('last', last);
+    }
 
-    console.log('lowest', lowest.get('score'));
     console.timeEnd();
 }
 
