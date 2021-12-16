@@ -3,8 +3,11 @@ import _ from 'lodash';
 
 const input = 'input.txt';
 
+const versions = [];
+
 function decode(str) {
     const version = str.substring(0, 3);
+    versions.push(version);
     const type = str.substring(3, 6);
     const rest = str.substring(6);
 
@@ -22,6 +25,8 @@ function decode(str) {
         console.log('value', value);
         const binaryValue = _.parseInt(value, 2);
         console.log('binaryValue', binaryValue);
+    } else {
+        const length = rest.substring(0, 1) === '1' ? 11 : 15;
     }
 
 }
