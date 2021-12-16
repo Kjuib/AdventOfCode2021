@@ -6,7 +6,7 @@ export function loadInput(filePath, options = {}) {
     const listInput = _.split(fileInput, '\n');
     const filteredInput = _.filter(listInput, _.negate(_.isEmpty));
 
-    if (options.split) {
+    if (!_.isNil(options.split)) {
         return _.map(filteredInput, (row) => {
             if (options.isIntegers) {
                 return _.map(_.split(row, _.isString(options.split) ? options.split : ''), _.parseInt);
