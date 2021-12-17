@@ -48,6 +48,7 @@ function fire(target, xVel, yVel) {
 }
 
 function main() {
+    console.time();
     const inputLine = util.loadInput(input)[0];
     let [ ignore, x1, x2, y1, y2 ] = /x=(-?\d+)\.\.(-?\d+).*y=(-?\d+)\.\.(-?\d+)/.exec(inputLine);
     const target = {
@@ -64,6 +65,7 @@ function main() {
     }
 
     console.log('maxHeight', maxHeight);
+    console.timeEnd();
 }
 
 main();
