@@ -30,3 +30,21 @@ export function printGrid(data, separator = ' ') {
 
     console.log(str, '\n');
 }
+
+export function printGridList(list) {
+    const xMin = _.min(_.map(list, 'x'));
+    const xMax = _.max(_.map(list, 'x'));
+    const yMin = _.min(_.map(list, 'y'));
+    const yMax = _.max(_.map(list, 'y'));
+
+    let str = '';
+    for (let yy = yMin; yy <= yMax; yy++) {
+        for (let xx = xMin; xx <= xMax; xx++) {
+            str += _.get(list, `[${xx},${yy}].char`, '.');
+            str += ' ';
+        }
+        str += '\n';
+    }
+
+    console.log(str);
+}
