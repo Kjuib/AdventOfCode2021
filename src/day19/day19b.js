@@ -1,119 +1,185 @@
-import * as util from '../util.js';
 import _ from 'lodash';
+import fs from 'fs';
 
 // const input = 'input.test.txt';
 const input = 'input.txt';
 
-function reduce(line) {
-    let hasReduced = false;
+let size = 0;
 
-    const checkExplode = new RegExp(/\[(\d{1,2})\,(\d{1,2})\]/g);
-    let explodeResult = true;
-    let newLine = line;
-    while (explodeResult) {
-        explodeResult = checkExplode.exec(line);
-        if (explodeResult) {
-            const preStringCounts = _.countBy(line.substring(0, explodeResult.index).split(''));
-            if ((preStringCounts['['] || 0) - (preStringCounts[']'] || 0) >= 4) {
-                // console.log('EXPLODING');
-                let preString = line.substring(0, explodeResult.index);
-                const preStringRegex = /^(.*\D)(\d{1,2})/;
-                const preStringRegexResult = preStringRegex.exec(preString);
-                if (preStringRegexResult) {
-                    const explodedValue1 = _.parseInt(explodeResult[1]);
-                    const leftNumber = _.parseInt(preStringRegexResult[2]);
-                    preString = preString.replace(preStringRegex, `$1${explodedValue1 + leftNumber}`);
+const orientations = [
+    { key: '01', x:{ key: 'x', mod:  1 }, y:{ key: 'y', mod:  1 }, z:{ key: 'z', mod:  1 } },
+    { key: '02', x:{ key: 'x', mod:  1 }, y:{ key: 'z', mod: -1 }, z:{ key: 'y', mod:  1 } },
+    { key: '03', x:{ key: 'x', mod:  1 }, y:{ key: 'y', mod: -1 }, z:{ key: 'z', mod: -1 } },
+    { key: '04', x:{ key: 'x', mod:  1 }, y:{ key: 'z', mod:  1 }, z:{ key: 'y', mod: -1 } },
+    { key: '05', x:{ key: 'x', mod: -1 }, y:{ key: 'y', mod:  1 }, z:{ key: 'z', mod: -1 } },
+    { key: '06', x:{ key: 'x', mod: -1 }, y:{ key: 'z', mod:  1 }, z:{ key: 'y', mod:  1 } },
+    { key: '07', x:{ key: 'x', mod: -1 }, y:{ key: 'y', mod: -1 }, z:{ key: 'z', mod:  1 } },
+    { key: '08', x:{ key: 'x', mod: -1 }, y:{ key: 'z', mod: -1 }, z:{ key: 'y', mod: -1 } },
+    { key: '09', x:{ key: 'y', mod:  1 }, y:{ key: 'z', mod:  1 }, z:{ key: 'x', mod:  1 } },
+    { key: '10', x:{ key: 'y', mod:  1 }, y:{ key: 'x', mod: -1 }, z:{ key: 'z', mod:  1 } },
+    { key: '11', x:{ key: 'y', mod:  1 }, y:{ key: 'z', mod: -1 }, z:{ key: 'x', mod: -1 } },
+    { key: '12', x:{ key: 'y', mod:  1 }, y:{ key: 'x', mod:  1 }, z:{ key: 'z', mod: -1 } },
+    { key: '13', x:{ key: 'y', mod: -1 }, y:{ key: 'z', mod: -1 }, z:{ key: 'x', mod:  1 } },
+    { key: '14', x:{ key: 'y', mod: -1 }, y:{ key: 'x', mod: -1 }, z:{ key: 'z', mod: -1 } },
+    { key: '15', x:{ key: 'y', mod: -1 }, y:{ key: 'z', mod:  1 }, z:{ key: 'x', mod: -1 } },
+    { key: '16', x:{ key: 'y', mod: -1 }, y:{ key: 'x', mod:  1 }, z:{ key: 'z', mod:  1 } },
+    { key: '17', x:{ key: 'z', mod:  1 }, y:{ key: 'y', mod: -1 }, z:{ key: 'x', mod:  1 } },
+    { key: '18', x:{ key: 'z', mod:  1 }, y:{ key: 'x', mod: -1 }, z:{ key: 'y', mod: -1 } },
+    { key: '19', x:{ key: 'z', mod:  1 }, y:{ key: 'y', mod:  1 }, z:{ key: 'x', mod: -1 } },
+    { key: '20', x:{ key: 'z', mod:  1 }, y:{ key: 'x', mod:  1 }, z:{ key: 'y', mod:  1 } },
+    { key: '21', x:{ key: 'z', mod: -1 }, y:{ key: 'y', mod:  1 }, z:{ key: 'x', mod:  1 } },
+    { key: '22', x:{ key: 'z', mod: -1 }, y:{ key: 'x', mod: -1 }, z:{ key: 'y', mod:  1 } },
+    { key: '23', x:{ key: 'z', mod: -1 }, y:{ key: 'y', mod: -1 }, z:{ key: 'x', mod: -1 } },
+    { key: '24', x:{ key: 'z', mod: -1 }, y:{ key: 'x', mod:  1 }, z:{ key: 'y', mod: -1 } },
+];
 
-                }
+function loadInput(filePath) {
+    const fileInput = fs.readFileSync(filePath);
+    const listInput = _.split(fileInput, '\n\n');
 
-                let postString = line.substring(explodeResult.index + explodeResult[0].length);
-                const postStringRegex = /(\d{1,2})/;
-                const postStringRegexResult = postStringRegex.exec(postString);
-                if (postStringRegexResult) {
-                    const explodedValue2 = _.parseInt(explodeResult[2]);
-                    const rightNumber = _.parseInt(postStringRegexResult[1]);
-                    postString = postString.replace(postStringRegex, explodedValue2 + rightNumber);
-                }
+    return _.map(listInput, (scannerString) => {
+        const [ title, ...rows ] = _.compact(scannerString.split('\n'));
 
-                newLine = `${preString}0${postString}`
+        const points = _.map(rows, (row) => {
+            const [x, y, z] = row.split(',');
 
-                hasReduced = true;
-                break;
-            }
-        }
-    }
+            return {
+                x: _.parseInt(x),
+                y: _.parseInt(y),
+                z: _.parseInt(z)
+            };
+        });
 
-    if (!hasReduced) {
-        // split
-        const splitRegex = /\d{2}/;
-        const splitRegexResult = splitRegex.exec(line);
-        if (splitRegexResult) {
-            // console.log('SPLITTING');
-            const value = _.parseInt(splitRegexResult[0]);
-            const value1 = _.floor(value / 2);
-            const value2 = _.ceil(value / 2);
-            newLine = newLine.replace(splitRegex, `[${value1},${value2}]`)
-
-            hasReduced = true;
-        }
-    }
-
-    // console.log('newLine', newLine);
-
-    if (hasReduced) {
-        return reduce(newLine);
-    }
-
-    return newLine;
+        return {
+            title,
+            points
+        };
+    });
 }
 
-function add(part1, part2) {
-    const total = `[${part1},${part2}]`;
+function compare(nScanner, scanner2) {
+    const result = {
+        found: false
+    };
 
-    return reduce(total);
-}
-
-function magnitude(line) {
-    let foundMag = true;
-    while (foundMag) {
-        foundMag = false;
-
-        let replaceRegex = /\[(\d+)\,(\d+)\]/;
-        const replaceRegexResult = replaceRegex.exec(line);
-        if (replaceRegexResult) {
-            foundMag = true;
-
-            const value1 = _.parseInt(replaceRegexResult[1]);
-            const value2 = _.parseInt(replaceRegexResult[2]);
-
-            line = line.replace(replaceRegex, ((value1 * 3) + (value2 * 2)));
+    _.forEach(orientations, (orientation) => {
+        if (result.found) {
+            return;
         }
-    }
+        const scores = {};
+        _.forEach(nScanner.points, (point1) => {
+            _.forEach(scanner2.points, (point2) => {
+                const x = point1.x - ((point2[orientation.x.key] * orientation.x.mod));
+                const y = point1.y - ((point2[orientation.y.key] * orientation.y.mod));
+                const z = point1.z - ((point2[orientation.z.key] * orientation.z.mod));
 
-    return _.parseInt(line);
-}
+                scores[`${x},${y},${z}`] = (scores[`${x},${y},${z}`] || 0) + 1;
+            });
+        });
 
-function main() {
-    console.time();
-    const inputLine = util.loadInput(input);
-
-    let topMagnitude = 0;
-    _.forEach(inputLine, (line1, index1) => {
-        _.forEach(inputLine, (line2, index2) => {
-            if (index1 === index2) {
-                return;
-            }
-
-            const total = add(line1, line2);
-            const mag = magnitude(total);
-
-            if (mag > topMagnitude) {
-                topMagnitude = mag;
+        _.forEach(scores, (value, key) => {
+            if (value >= 12) {
+                result.found = true;
+                result.shift = key;
+                result.orientation = orientation;
             }
         });
     });
 
-    console.log('topMagnitude', topMagnitude);
+    return result;
+}
+
+function findMatch(normalized, scanners) {
+    const result = {
+        found: false
+    };
+
+    _.forEach(normalized, (nScanner) => {
+        if (result.found) {
+            return;
+        }
+
+        _.forEach(scanners, (scanner2) => {
+            if (result.found) {
+                return;
+            }
+
+            const compareResult = compare(nScanner, scanner2);
+            if (compareResult.found) {
+                const normalizedScanner2 = normalize(scanner2, compareResult.shift, compareResult.orientation);
+                result.found = true;
+                result.normalized = [
+                    ...normalized,
+                    normalizedScanner2
+                ];
+                result.scanners = _.filter(scanners, (scanner) => {
+                    return scanner.title !== normalizedScanner2.title;
+                });
+            }
+        });
+    });
+
+    return result;
+}
+
+function normalize(scanner, shift, orientation) {
+    const [xx, yy, zz] = _.map(shift.split(','), _.parseInt);
+
+    scanner.points = _.map(scanner.points, (point) => {
+        return {
+            x: (point[orientation.x.key] * orientation.x.mod) + xx,
+            y: (point[orientation.y.key] * orientation.y.mod) + yy,
+            z: (point[orientation.z.key] * orientation.z.mod) + zz,
+        };
+    });
+
+    scanner.location = {
+        x: xx,
+        y: yy,
+        z: zz
+    };
+
+    return scanner;
+}
+
+function main() {
+    console.time();
+
+    let [ normalized, ...scanners ] = loadInput(input);
+    size = normalized.points.length;
+    normalized.location = {
+        x: 0,
+        y: 0,
+        z: 0
+    };
+    normalized = [ normalized ];
+
+    let lookForMatches = true;
+    while (lookForMatches) {
+        const matchResult = findMatch(normalized, scanners);
+        lookForMatches = matchResult.found;
+        if (matchResult.found) {
+            normalized = matchResult.normalized;
+            scanners = matchResult.scanners;
+        }
+    }
+
+    let furthest = 0;
+
+    _.forEach(normalized, (n1) => {
+        _.forEach(normalized, (n2) => {
+            if (n1.title === n2.title) {
+                return;
+            }
+
+            const distance = Math.abs(n1.location.x - n2.location.x) + Math.abs(n1.location.y - n2.location.y) + Math.abs(n1.location.z - n2.location.z)
+            if (distance > furthest) {
+                furthest = distance;
+            }
+        });
+    });
+
+    console.log('furthest', furthest);
 
     console.timeEnd();
 }
