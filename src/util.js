@@ -29,6 +29,8 @@ export function printGrid(data, separator = ' ') {
     }, '');
 
     console.log(str, '\n');
+
+    return str;
 }
 
 export function printGridList(list) {
